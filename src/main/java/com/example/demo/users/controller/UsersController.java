@@ -24,7 +24,7 @@ import com.example.demo.users.service.UsersService;
  * -> CRUD
  * - getMe: It returns your information(id, nickname, password) later it returns jwt token.
  * - createUser: It creates user.
- * - getAllUser: It returns all user's information(id, nickname)
+ * - getAllUser: It returns all user's information(id, nickname) later add filtering
  * - updateMe: It updates user's information. It must check user's authority about updating information.
  * - deleteUser: It deletes user's information. It must check user's authority about deleting information.
  * 
