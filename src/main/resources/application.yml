@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: CRUD
+  datasource:
+    url: jdbc:mysql://localhost:3306/crud
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+jwt:
+  secret: _CRUD_with_Spring_secret_key_must_have_size_over_the_256bits_
+  expiration: 36000000
