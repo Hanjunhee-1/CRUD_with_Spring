@@ -10,7 +10,7 @@ create table boards (
 	content text not null,
 	created_at timestamp default current_timestamp,
 	updated_at timestamp,
-	userId int,
+	user_id int,
 	constraint fk_users_boards
 	foreign key (userId)
 	references users (userId)
