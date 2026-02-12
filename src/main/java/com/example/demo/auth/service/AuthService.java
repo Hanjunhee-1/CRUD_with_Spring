@@ -51,5 +51,4 @@ public class AuthService {
 					jwtUtil.extractExpiration(jwtToken)
 				);
 	}
-	
 }

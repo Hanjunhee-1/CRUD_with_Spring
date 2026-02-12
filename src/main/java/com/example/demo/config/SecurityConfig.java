@@ -2,6 +2,7 @@ package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,7 +31,22 @@ public class SecurityConfig {
             .formLogin(form -> form.disable()) // 로그인 페이지 비활성화
             .httpBasic(basic -> basic.disable())
             .authorizeHttpRequests(auth -> auth
+            	// auth 에서는 모두 허용.
             	.requestMatchers("/auth/**").permitAll()
+            	
+            	// getAllUsers(), createUser() 는 모두 허용.
+            	// updateUser(), deleteUser(), getMe() 는 jwt 필요.
+            	.requestMatchers(HttpMethod.GET, "/users").permitAll()
+            	.requestMatchers(HttpMethod.POST, "/users").permitAll()
+            	.requestMatchers(HttpMethod.PATCH, "/users").authenticated()
+            	.requestMatchers(HttpMethod.DELETE, "/users").authenticated()
+            	.requestMatchers(HttpMethod.GET, "/boards/**").permitAll()
+            	.requestMatchers(HttpMethod.POST, "/boards").authenticated()
+            	.requestMatchers(HttpMethod.PATCH, "/boards/**").authenticated()
+            	.requestMatchers(HttpMethod.DELETE, "/boards/**").authenticated()
+            	.requestMatchers("/users/me").authenticated()
+            	
+            	// 그 외 다른 것들은 모두 허용.
                 .anyRequest().permitAll()
             )
             // UsernamePasswordAuthenticationFilter 앞에 JWT 필터를 넣음

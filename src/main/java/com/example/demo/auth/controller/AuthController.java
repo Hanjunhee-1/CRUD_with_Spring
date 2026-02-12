@@ -19,11 +19,9 @@ public class AuthController {
 		this.authService = authService;
 	}
 	
-	@PostMapping
+	@PostMapping("/login")
 	public ResponseEntity<AuthResponse> logIn(@RequestBody UserRequest userRequest) {
 		AuthResponse authResponse = this.authService.logIn(userRequest);
 		return ResponseEntity.ok(authResponse);
 	}
-	
-	// logOut 구현
 }

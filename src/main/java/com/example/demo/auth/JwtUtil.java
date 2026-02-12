@@ -77,9 +77,9 @@ public class JwtUtil {
 	 * 
 	 * @param token
 	 * 
-	 * 토큰 정보 추출. private
+	 * 토큰 정보 추출.
 	 */
-	private Jws<Claims> parseToken(String token) {
+	public Jws<Claims> parseToken(String token) {
 		return Jwts.parser()
 				.verifyWith(secretKey)
 				.build()
@@ -134,20 +134,5 @@ public class JwtUtil {
 	 */
 	public boolean isExpired(String token) {
 		return extractExpiration(token).before(new Date());
-	}
-	
-	/**
-	 * 
-	 * @param token
-	 * 
-	 * 토큰 유효성 검사
-	 */
-	public boolean validateToken(String token) {
-		try {
-			parseToken(token);
-			return true;
-		} catch(Exception e) {
-			return false;
-		}
 	}
 }

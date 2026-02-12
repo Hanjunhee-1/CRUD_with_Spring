@@ -39,23 +39,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     	String authorizationHeader = request.getHeader("Authorization");
     	String token = jwtUtil.resolveToken(authorizationHeader);
     	
-    	// 토큰이 없다면 그냥 통과.
+    	// 토큰이 없다면 그냥 통과. 토큰이 필요없는 서비스도 있음.
     	if (token == null) {
     		filterChain.doFilter(request, response);
     		return ;
     	}
     	
-    	// 토큰이 유효하지 않다면 그냥 통과.
-    	if (!jwtUtil.validateToken(token)) {
-    		filterChain.doFilter(request, response);
-    		return ;
-    	}
-    	
-    	Long userId = jwtUtil.extractUserId(token);
-    	Users user = usersRepository.findById(userId).orElse(null);
-    	
-    	if (user != null) {
-    		// Spring Security 인증 객체 생성 (권한은 따로 없으므로 null)
+    	try {
+    		// token 파싱 및 검증
+    		Long userId = jwtUtil.extractUserId(token);
+    		Users user = usersRepository.findById(userId).orElse(null);
+    		
+    		if (user == null) {
+    			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    			response.setContentType("application/json");
+    			response.getWriter().write("{\"message\": \"User not found\"}");
+    			return ;
+    		}
+    		
     		UsernamePasswordAuthenticationToken authentication = 
     				new UsernamePasswordAuthenticationToken(user, null, List.of());
     		
@@ -63,8 +64,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     		
     		// security context 에 등록.
     		SecurityContextHolder.getContext().setAuthentication(authentication);
+    		
+    		filterChain.doFilter(request, response);
+    	} catch (io.jsonwebtoken.ExpiredJwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"message\": \"Token expired\"}");
+            return;
+
+    	} catch (io.jsonwebtoken.JwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"message\": \"Invalid token\"}");
+            return;
     	}
-    	
-    	filterChain.doFilter(request, response);
     }
 }
