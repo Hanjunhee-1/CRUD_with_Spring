@@ -4,14 +4,23 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.boards.domain.Boards;
+import com.example.demo.boards.dto.BoardsFilterRequest;
 import com.example.demo.boards.dto.BoardsRequest;
 import com.example.demo.boards.dto.BoardsResponse;
+import com.example.demo.boards.dto.BoardsResponseWithPage;
 import com.example.demo.boards.repository.BoardsRepository;
+import com.example.demo.boards.repository.BoardsSpecification;
 import com.example.demo.users.domain.Users;
 import com.example.demo.users.repository.UsersRepository;
+import com.example.demo.util.pages.PageDto;
 
 @Service
 public class BoardsService {
@@ -44,10 +53,18 @@ public class BoardsService {
 		return BoardsResponse.withUser(boardsRepository.save(board));
 	}
 	
-	public List<BoardsResponse> getAllBoard() {
-		return boardsRepository.findAll().stream()
-				.map(board -> BoardsResponse.withUser(board))
-				.toList();
+	public BoardsResponseWithPage getAllBoard(BoardsFilterRequest boardsFilter, PageDto pagination) {
+		Specification<Boards> spec = (root, query, cb) -> cb.conjunction();
+		
+		if (boardsFilter.hasTitle()) spec = spec.and(BoardsSpecification.titleLike(boardsFilter.getTitle()));
+		
+		if (boardsFilter.hasNickname()) spec = spec.and(BoardsSpecification.nicknameLike(boardsFilter.getNickname()));
+		
+		Pageable page = PageRequest.of(pagination.getPageNumber(), pagination.getPageSize(), boardsFilter.toSort() == null ? Sort.unsorted() : boardsFilter.toSort());
+		
+		Page<Boards> boards = boardsRepository.findAll(spec, page);
+		
+		return new BoardsResponseWithPage(boards);
 	}
 	
 	public BoardsResponse updateBoard(Long userId, Long boardId, BoardsRequest updateBoardsRequest) {

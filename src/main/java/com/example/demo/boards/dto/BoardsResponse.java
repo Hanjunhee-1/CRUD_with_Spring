@@ -2,6 +2,8 @@ package com.example.demo.boards.dto;
 
 import java.time.LocalDateTime;
 
+import org.springframework.data.domain.Pageable;
+
 import com.example.demo.boards.domain.Boards;
 import com.example.demo.users.domain.Users;
 
