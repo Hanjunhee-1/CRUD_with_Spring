@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ExceptionCode {
-
+	/**
+	 * 만약 새롭게 추가해야할 exception 이 있다면 아래에 모듈별로 추가해주면 됨.
+	 */
+	
 	/** Auth **/
 	INVALID_NICKNAME(400, "닉네임을 다시 확인해주세요"),
 	NOT_FOUND_NICKNAME(401, "닉네임이 틀렸습니다"),
