@@ -1,12 +1,12 @@
 package com.example.demo.auth.service;
 
-import java.util.Optional;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.auth.JwtUtil;
 import com.example.demo.auth.dto.AuthResponse;
+import com.example.demo.exception.ApiException;
+import com.example.demo.exception.ExceptionCode;
 import com.example.demo.users.domain.Users;
 import com.example.demo.users.dto.UserRequest;
 import com.example.demo.users.repository.UsersRepository;
@@ -29,23 +29,23 @@ public class AuthService {
 	
 	public AuthResponse logIn(UserRequest userRequest) {
 		if (userRequest.getNickname() == null || userRequest.getNickname().isEmpty()) {
-			throw new RuntimeException("Nickname is empty or null");
+			throw new ApiException(ExceptionCode.INVALID_NICKNAME);
 		}
-		Optional<Users> foundUser = usersRepository.findByNickname(userRequest.getNickname());
+		Users foundUser = usersRepository.findByNickname(userRequest.getNickname()).orElse(null);
 		
 		if (foundUser == null) {
-			throw new RuntimeException("Nickname doesn't matched");
+			throw new ApiException(ExceptionCode.NOT_FOUND_NICKNAME);
 		}
 		
 		if (userRequest.getPassword() == null || userRequest.getPassword().isEmpty()) {
-			throw new RuntimeException("Password is empty or null");
+			throw new ApiException(ExceptionCode.INVALID_PASSWORD);
 		}
 		
-		if (!passwordEncoder.matches(userRequest.getPassword(), foundUser.get().getPassword())) {
-			throw new RuntimeException("Password doesn't matched");
+		if (!passwordEncoder.matches(userRequest.getPassword(), foundUser.getPassword())) {
+			throw new ApiException(ExceptionCode.NOT_FOUND_PASSWORD);
 		}
 		
-		String jwtToken = jwtUtil.createAccessToken(foundUser.get());
+		String jwtToken = jwtUtil.createAccessToken(foundUser);
 		return new AuthResponse(
 					jwtToken,
 					jwtUtil.extractExpiration(jwtToken)

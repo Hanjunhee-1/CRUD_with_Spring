@@ -1,8 +1,6 @@
 package com.example.demo.boards.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +16,8 @@ import com.example.demo.boards.dto.BoardsResponse;
 import com.example.demo.boards.dto.BoardsResponseWithPage;
 import com.example.demo.boards.repository.BoardsRepository;
 import com.example.demo.boards.repository.BoardsSpecification;
+import com.example.demo.exception.ApiException;
+import com.example.demo.exception.ExceptionCode;
 import com.example.demo.users.domain.Users;
 import com.example.demo.users.repository.UsersRepository;
 import com.example.demo.util.pages.PageDto;
@@ -36,19 +36,23 @@ public class BoardsService {
 	}
 	
 	public BoardsResponse createBoard(Long userId, BoardsRequest createBoardsRequest) {
-		Optional<Users> foundUser = usersRepository.findById(userId);
+		Users foundUser = usersRepository.findById(userId).orElse(null);
 		if (foundUser == null) {
-			throw new RuntimeException("User not found");
+			throw new ApiException(ExceptionCode.NOT_FOUND_USER);
 		}
 		
-		if (createBoardsRequest.getTitle().isEmpty() || createBoardsRequest.getContent().isEmpty()) {
-			throw new RuntimeException("title or content shouldn't be empty");
+		if (createBoardsRequest.getTitle() == null || createBoardsRequest.getTitle().isEmpty()) {
+			throw new ApiException(ExceptionCode.INVALID_TITLE);
+		}
+		
+		if (createBoardsRequest.getContent() == null || createBoardsRequest.getContent().isEmpty()) {
+			throw new ApiException(ExceptionCode.INVALID_CONTENT);
 		}
 		
 		Boards board = new Boards();
 		board.setTitle(createBoardsRequest.getTitle());
 		board.setContent(createBoardsRequest.getContent());
-		board.setUser(foundUser.get());
+		board.setUser(foundUser);
 		
 		return BoardsResponse.withUser(boardsRepository.save(board));
 	}
@@ -68,51 +72,51 @@ public class BoardsService {
 	}
 	
 	public BoardsResponse updateBoard(Long userId, Long boardId, BoardsRequest updateBoardsRequest) {
-		Optional<Boards> foundBoard = boardsRepository.findById(boardId);
+		Boards foundBoard = boardsRepository.findById(boardId).orElse(null);
 		if (foundBoard == null) {
-			throw new RuntimeException("Post not found");
+			throw new ApiException(ExceptionCode.NOT_FOUND_POST);
 		}
 		
 		if (!usersRepository.existsById(userId)) {
-			throw new RuntimeException("User not found");
+			throw new ApiException(ExceptionCode.NOT_FOUND_USER);
 		}
 		
-		if (foundBoard.get().getUser().getId() != userId) {
-			throw new RuntimeException("No authority");
+		if (foundBoard.getUser().getId() != userId) {
+			throw new ApiException(ExceptionCode.FORBIDDEN_UPDATE_POST);
 		}
 		
-		foundBoard.get().setTitle(
+		foundBoard.setTitle(
 				updateBoardsRequest.getTitle() == null || updateBoardsRequest.getTitle().isEmpty()
-				? foundBoard.get().getTitle()
+				? foundBoard.getTitle()
 				: updateBoardsRequest.getTitle());
-		foundBoard.get().setContent(
+		foundBoard.setContent(
 				updateBoardsRequest.getContent() == null || updateBoardsRequest.getContent().isEmpty()
-				? foundBoard.get().getContent()
+				? foundBoard.getContent()
 				: updateBoardsRequest.getContent());
 
 		LocalDateTime currentDate = LocalDateTime.now();
-		foundBoard.get().setUpdatedAt(
-					foundBoard.get().getUpdatedAt() == null || foundBoard.get().getUpdatedAt().isBefore(currentDate)
+		foundBoard.setUpdatedAt(
+					foundBoard.getUpdatedAt() == null || foundBoard.getUpdatedAt().isBefore(currentDate)
 					? currentDate
-					: foundBoard.get().getUpdatedAt());
+					: foundBoard.getUpdatedAt());
 		
-		return BoardsResponse.withUser(boardsRepository.save(foundBoard.get()));
+		return BoardsResponse.withUser(boardsRepository.save(foundBoard));
 	}
 	
 	public void deleteBoard(Long userId, Long boardId) {
-		Optional<Boards> foundBoard = boardsRepository.findById(boardId);
+		Boards foundBoard = boardsRepository.findById(boardId).orElse(null);
 		if (foundBoard == null) {
-			throw new RuntimeException("Post not found");
+			throw new ApiException(ExceptionCode.NOT_FOUND_POST);
 		}
 		
 		if (!usersRepository.existsById(userId)) {
-			throw new RuntimeException("User not found");
+			throw new ApiException(ExceptionCode.NOT_FOUND_USER);
 		}
 		
-		if (foundBoard.get().getUser().getId() != userId) {
-			throw new RuntimeException("No authority");
+		if (foundBoard.getUser().getId() != userId) {
+			throw new ApiException(ExceptionCode.FORBIDDEN_DELETE_POST);
 		}
 		
-		boardsRepository.delete(foundBoard.get());
+		boardsRepository.delete(foundBoard);
 	}
 }

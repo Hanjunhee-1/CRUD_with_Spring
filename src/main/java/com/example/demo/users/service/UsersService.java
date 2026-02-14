@@ -1,11 +1,12 @@
 package com.example.demo.users.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.exception.ApiException;
+import com.example.demo.exception.ExceptionCode;
 import com.example.demo.users.domain.Users;
 import com.example.demo.users.dto.UserRequest;
 import com.example.demo.users.dto.UsersResponse;
@@ -27,14 +28,17 @@ public class UsersService {
 	
 	public UsersResponse getMe(Long id) {
 		Users user = usersRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("User not found"));
+				.orElse(null);
+		if (user == null) {
+			throw new ApiException(ExceptionCode.NOT_FOUND_USER);
+		}
 		
 		return UsersResponse.withoutPassword(user);
 	}
 	
 	public UsersResponse createUser(UserRequest createUserRequest) {
 		if (usersRepository.existsByNickname(createUserRequest.getNickname())) {
-			throw new RuntimeException("Nickname already exists");
+			throw new ApiException(ExceptionCode.CONFLICT_NICKNAME);
 		}
 		
 		Users user = new Users();
@@ -53,30 +57,33 @@ public class UsersService {
 	}
 	
 	public UsersResponse updateMe(Long id, UserRequest updateUserRequest) {
-		Optional<Users> foundUser = usersRepository.findById(id);
-		
+		Users foundUser = usersRepository.findById(id).orElse(null);
 		if (foundUser == null) {
-			throw new RuntimeException("User not found");
+			throw new ApiException(ExceptionCode.NOT_FOUND_USER);
 		}
 		
-		if (!updateUserRequest.getNickname().isEmpty() && usersRepository.existsByNickname(updateUserRequest.getNickname())) {
-			throw new RuntimeException("Nickname already exists");
+		if (updateUserRequest.getNickname() == null || updateUserRequest.getNickname().isEmpty()) {
+			throw new ApiException(ExceptionCode.INVALID_NICKNAME);
 		}
 		
-		foundUser.get().setNickname(
+		if (usersRepository.existsByNickname(updateUserRequest.getNickname())) {
+			throw new ApiException(ExceptionCode.CONFLICT_NICKNAME);
+		}
+		
+		foundUser.setNickname(
 				updateUserRequest.getNickname() == null || updateUserRequest.getNickname().isEmpty() 
-						? foundUser.get().getNickname()
+						? foundUser.getNickname()
 						: updateUserRequest.getNickname());
-		foundUser.get().setPassword(
+		foundUser.setPassword(
 				updateUserRequest.getPassword() == null || updateUserRequest.getPassword().isEmpty()
-						? foundUser.get().getPassword()
+						? foundUser.getPassword()
 						: passwordEncoder.encode(updateUserRequest.getPassword())); 
-		return UsersResponse.withPassword(usersRepository.save(foundUser.get()));
+		return UsersResponse.withPassword(usersRepository.save(foundUser));
 	}
 	
 	public void deleteUser(Long id) {
 		if (!usersRepository.existsById(id)) {
-			throw new RuntimeException("User not found");
+			throw new ApiException(ExceptionCode.NOT_FOUND_USER);
 		}
 		
 		usersRepository.deleteById(id);
