@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.exception.ApiException;
 import com.example.demo.exception.ExceptionCode;
@@ -13,6 +14,7 @@ import com.example.demo.users.dto.UsersResponse;
 import com.example.demo.users.repository.UsersRepository;
 
 @Service
+@Transactional
 public class UsersService {
 	
 	private final UsersRepository usersRepository;
@@ -26,6 +28,7 @@ public class UsersService {
 		this.passwordEncoder = passwordEncoder;
 	}
 	
+	@Transactional(readOnly = true)
 	public UsersResponse getMe(Long id) {
 		Users user = usersRepository.findById(id)
 				.orElse(null);
@@ -50,6 +53,7 @@ public class UsersService {
 		return UsersResponse.withPassword(savedUser);
 	}
 	
+	@Transactional(readOnly = true)
 	public List<UsersResponse> getAllUser() {
 		return usersRepository.findAll().stream()
 				.map(user -> UsersResponse.withoutPassword(user))

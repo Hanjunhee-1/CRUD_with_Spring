@@ -2,6 +2,7 @@ package com.example.demo.auth.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.auth.JwtUtil;
 import com.example.demo.auth.dto.AuthResponse;
@@ -12,6 +13,7 @@ import com.example.demo.users.dto.UserRequest;
 import com.example.demo.users.repository.UsersRepository;
 
 @Service
+@Transactional
 public class AuthService {
 	private final UsersRepository usersRepository;
 	private final PasswordEncoder passwordEncoder;
@@ -27,6 +29,7 @@ public class AuthService {
 		this.jwtUtil = jwtUtil;
 	}
 	
+	@Transactional(readOnly = true)
 	public AuthResponse logIn(UserRequest userRequest) {
 		if (userRequest.getNickname() == null || userRequest.getNickname().isEmpty()) {
 			throw new ApiException(ExceptionCode.INVALID_NICKNAME);

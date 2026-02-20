@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.boards.domain.Boards;
 import com.example.demo.boards.dto.BoardsFilterRequest;
@@ -23,6 +24,7 @@ import com.example.demo.users.repository.UsersRepository;
 import com.example.demo.util.pages.PageDto;
 
 @Service
+@Transactional
 public class BoardsService {
 	private final BoardsRepository boardsRepository;
 	private final UsersRepository usersRepository;
@@ -57,6 +59,7 @@ public class BoardsService {
 		return BoardsResponse.withUser(boardsRepository.save(board));
 	}
 	
+	@Transactional(readOnly = true)
 	public BoardsResponseWithPage getAllBoard(BoardsFilterRequest boardsFilter, PageDto pagination) {
 		Specification<Boards> spec = (root, query, cb) -> cb.conjunction();
 		
