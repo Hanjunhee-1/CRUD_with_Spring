@@ -81,7 +81,7 @@ public class BoardsService {
 			throw new ApiException(ExceptionCode.NOT_FOUND_USER);
 		}
 		
-		if (foundBoard.getUser().getId() != userId) {
+		if (!foundBoard.getUser().getId().equals(userId)) {
 			throw new ApiException(ExceptionCode.FORBIDDEN_UPDATE_POST);
 		}
 		
@@ -113,7 +113,7 @@ public class BoardsService {
 			throw new ApiException(ExceptionCode.NOT_FOUND_USER);
 		}
 		
-		if (foundBoard.getUser().getId() != userId) {
+		if (!foundBoard.getUser().getId().equals(userId)) {
 			throw new ApiException(ExceptionCode.FORBIDDEN_DELETE_POST);
 		}
 		
