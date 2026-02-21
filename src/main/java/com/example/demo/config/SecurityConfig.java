@@ -46,6 +46,13 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.DELETE, "/boards/**").authenticated()
             	.requestMatchers("/users/me").authenticated()
             	
+            	// Swagger 허용
+            	.requestMatchers(
+            			"/swagger-ui/**",
+            			"/v3/api-docs/**"
+            	).permitAll()
+            	
+            	
             	// 그 외 다른 것들은 모두 허용.
                 .anyRequest().permitAll()
             )

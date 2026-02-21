@@ -17,6 +17,10 @@ import com.example.demo.users.dto.UserRequest;
 import com.example.demo.users.dto.UsersResponse;
 import com.example.demo.users.service.UsersService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Users", description = "사용자 관련 API")
 @RestController
 @RequestMapping("/users")
 public class UsersController {
@@ -27,6 +31,7 @@ public class UsersController {
 		this.usersService = usersService;
 	}
 
+	@Operation(summary = "본인 정보 확인", description = "사용자로부터 정보(JWT 토큰) 를 입력받아 본인 정보를 확인합니다")
 	@GetMapping("/me")
 	public ResponseEntity<UsersResponse> getMe(Authentication authentication) {
 		Users user = (Users) authentication.getPrincipal();
@@ -34,18 +39,21 @@ public class UsersController {
 		return ResponseEntity.ok(usersResponse);
 	}
 	
+	@Operation(summary = "사용자 생성", description = "사용자로부터 정보(nickname, password) 를 입력받아 사용자를 생성합니다")
 	@PostMapping()
 	public ResponseEntity<UsersResponse> createUser(@RequestBody UserRequest createUserRequest) {
 		UsersResponse usersResponse = this.usersService.createUser(createUserRequest);
 		return ResponseEntity.ok(usersResponse);
 	}
 	
+	@Operation(summary = "사용자 조회", description = "사용자를 모두 조회합니다")
 	@GetMapping()
 	public ResponseEntity<List<UsersResponse>> getAllUser() {
 		List<UsersResponse> usersResponse = this.usersService.getAllUser();
 		return ResponseEntity.ok(usersResponse);
 	}
 	
+	@Operation(summary = "사용자 정보 수정", description = "사용자로부터 정보(JWT 토큰, nickname, password) 를 입력받아 사용자 정보를 수정합니다")
 	@PatchMapping()
 	public ResponseEntity<UsersResponse> updateMe(
 			Authentication authentication, 
@@ -56,6 +64,7 @@ public class UsersController {
 		return ResponseEntity.ok(usersResponse);
 	}
 	
+	@Operation(summary = "사용자 정보 삭제", description = "사용자로부터 정보(JWT 토큰) 를 입력받아 사용자 정보를 삭제합니다")
 	@DeleteMapping()
 	public ResponseEntity<Void> deleteUser(Authentication authentication) {
 		Users user = (Users) authentication.getPrincipal();
