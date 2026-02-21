@@ -61,6 +61,16 @@ public class BoardsService {
 	
 	@Transactional(readOnly = true)
 	public BoardsResponseWithPage getAllBoard(BoardsFilterRequest boardsFilter, PageDto pagination) {
+		
+		// boardId 를 통해서 조회하려는 경우
+		if (boardsFilter.hasId()) {
+			Boards foundBoard = boardsRepository.findById(boardsFilter.getBoardId()).orElse(null);
+			
+			if (foundBoard == null) throw new ApiException(ExceptionCode.NOT_FOUND_POST);
+			
+			return new BoardsResponseWithPage(foundBoard);
+		}
+		
 		Specification<Boards> spec = (root, query, cb) -> cb.conjunction();
 		
 		if (boardsFilter.hasTitle()) spec = spec.and(BoardsSpecification.titleLike(boardsFilter.getTitle()));

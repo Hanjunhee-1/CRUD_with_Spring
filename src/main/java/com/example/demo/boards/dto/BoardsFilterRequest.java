@@ -10,12 +10,17 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BoardsFilterRequest {
+	private Long boardId;
 	private String title;
 	private String nickname;
 	private String createdAt;
 	private String updatedAt;
 	
 	public BoardsFilterRequest() {}
+	
+	public boolean hasId() {
+		return boardId != null;
+	}
 	
 	public boolean hasTitle() {
 		return title != null && !title.trim().isEmpty();

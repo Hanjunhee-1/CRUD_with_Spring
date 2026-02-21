@@ -1,6 +1,5 @@
 package com.example.demo.boards.controller;
 
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,16 +19,6 @@ import com.example.demo.boards.dto.BoardsResponseWithPage;
 import com.example.demo.boards.service.BoardsService;
 import com.example.demo.users.domain.Users;
 import com.example.demo.util.pages.PageDto;
-
-/**
- * 
- * description
- * 
- * what I need to develop?
- * 
- * -> CRUD
- * - getAllBoard: It returns boards. later add filtering.
- */
 
 @RestController()
 @RequestMapping("/boards")
