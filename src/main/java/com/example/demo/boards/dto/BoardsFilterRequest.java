@@ -4,16 +4,28 @@ import org.springframework.data.domain.Sort;
 
 import com.example.demo.util.enums.SortDirection;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
+@Schema(description = "게시글 조회 요청(필터링)")
 @Getter
 @Setter
 public class BoardsFilterRequest {
+	
+	@Schema(description = "게시글 고유 아이디", example = "1")
 	private Long boardId;
+	
+	@Schema(description = "게시글 제목", example = "test2 가 작성한 게시글")
 	private String title;
+	
+	@Schema(description = "사용자 닉네임", example = "test2")
 	private String nickname;
+	
+	@Schema(description = "생성일 기준 정렬", example = "[ASC, DESC]")
 	private String createdAt;
+	
+	@Schema(description = "수정일 기준 정렬", example = "[ASC, DESC]")
 	private String updatedAt;
 	
 	public BoardsFilterRequest() {}
